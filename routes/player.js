@@ -22,7 +22,7 @@ PlayerRouter.put('/api/playerstats', async (req, res) => {
     if (!player1Stats) {
       player1Stats = new Player({
         name: player1,
-        noOfMatches: 1,
+        noOfMatches: 0,
         elo: 1000,
       });
     }
@@ -30,7 +30,7 @@ PlayerRouter.put('/api/playerstats', async (req, res) => {
     if (!player2Stats) {
       player2Stats = new Player({
         name: player2,
-        noOfMatches: 1,
+        noOfMatches: 0,
         elo: 1000,
       });
     }

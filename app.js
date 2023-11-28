@@ -6,8 +6,6 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var mongoose = require('./config/db');
 const cors = require('cors');
-const ecors = require('express-cors');
-
 
 var app = express();
 
@@ -30,7 +28,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 
 app.use(cors());
-app.use(ecors());
 const corsOptions ={
   origin:'http://localhost:3000', 
   credentials:true,            //access-control-allow-credentials:true
