@@ -5,7 +5,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const session = require('express-session');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-
+require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -21,16 +21,16 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+app.use(cors({ origin: 'https://testmindsai.tech', credentials: true }));
 
 // Replace with a strong, random secret for signing JWT tokens
 const jwtSecret = 'your-jwt-secret';
 
 // Passport Setup
 passport.use(new GoogleStrategy({
-    clientID: '654317944738-3vdifm0pk5eue7si4dgt93cg07s37sqa.apps.googleusercontent.com',
-    clientSecret: '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',
-    callbackURL: 'http://localhost:3000/auth/google/callback'
+    clientID: process.env.CLIENT_ID,
+    clientSecret: process.env.CLIENT_SECRET,
+    callbackURL: process.env.CALLBACK_URL 
 },
 (accessToken, refreshToken, profile, done) => {
     // Use the profile information to check if the user is already registered in your database
@@ -51,7 +51,7 @@ const ensureAuthenticated = (req, res, next) => {
     if (req.isAuthenticated()) {
         return next();
     }
-    res.redirect('http://localhost:5173/');
+    res.redirect('https://testmindsai.tech/');
 };
 
 // Generate JWT token
@@ -78,12 +78,12 @@ app.get('/google',
 );
 
 app.get('/google/callback',
-    passport.authenticate('google', { failureRedirect: 'http://localhost:5173/' }),
+    passport.authenticate('google', { failureRedirect: 'https://testmindsai.tech/' }),
     (req, res) => {
         // Successful authentication, generate JWT token and send it to the client
         const token = generateToken(req.user);
         res.cookie('authToken', token);
-        res.redirect('http://localhost:5173/quizzes');
+        res.redirect('https://testmindsai.tech/quizzes');
     }
 );
 
@@ -100,7 +100,7 @@ app.get('/logout', (req, res) => {
             // Handle errors appropriately, e.g., return a 500 status code
         } else {
             res.clearCookie('jwt');
-            res.redirect('http://localhost:5173/');
+            res.redirect('https://testmindsai.tech/');
         }
     });
 });
