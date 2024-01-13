@@ -1,21 +1,38 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const passport = require('passport');
-const jwt = require('jsonwebtoken');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-require('dotenv').config();
+const session = require('express-session');
+const cors = require('cors');
+const jwt = require('jsonwebtoken');
 
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-const router = express.Router();
+// MongoDB Connection
+mongoose.connect('mongodb+srv://tejasvinu:HRvEphb6CKgeWBYf@aperta.u4lsf.mongodb.net/yourdbname', { useNewUrlParser: true, useUnifiedTopology: true });
+
+// Express Middleware
+app.use(session({
+    secret: 'whateveryouwanttododotitidk', // Replace with a strong, random string
+    resave: true,
+    saveUninitialized: true,
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 
 // Replace with a strong, random secret for signing JWT tokens
-const jwtSecret = process.env.JWT_SECRET;
+const jwtSecret = 'your-jwt-secret';
 
 // Passport Setup
 passport.use(new GoogleStrategy({
-  clientID: process.env.CLIENT_ID,
-  clientSecret: process.env.CLIENT_SECRET,
-  callbackURL: process.env.CALLBACK_URL
-}, (accessToken, refreshToken, profile, done) => {
+    clientID: '654317944738-3vdifm0pk5eue7si4dgt93cg07s37sqa.apps.googleusercontent.com',
+    clientSecret: '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',
+    callbackURL: 'http://localhost:3000/auth/google/callback'
+},
+(accessToken, refreshToken, profile, done) => {
     // Use the profile information to check if the user is already registered in your database
     // If not, save the user's information to the database
     return done(null, profile);
@@ -34,7 +51,7 @@ const ensureAuthenticated = (req, res, next) => {
     if (req.isAuthenticated()) {
         return next();
     }
-    res.redirect('https://testmindsai.tech/');
+    res.redirect('http://localhost:5173/');
 };
 
 // Generate JWT token
@@ -51,35 +68,41 @@ const generateToken = (user) => {
     return jwt.sign(payload, jwtSecret, options);
 };
 
-// Authentication Routes
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+// Routes
+app.get('/', (req, res) => {
+    res.send('Hello World!');
+});
 
-router.get('/google/callback',
-    passport.authenticate('google', { failureRedirect: 'https://testmindsai.tech/' }),
+app.get('/google',
+    passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
+app.get('/google/callback',
+    passport.authenticate('google', { failureRedirect: 'http://localhost:5173/' }),
     (req, res) => {
         // Successful authentication, generate JWT token and send it to the client
         const token = generateToken(req.user);
         res.cookie('authToken', token);
-        res.redirect('https://testmindsai.tech/quizzes');
+        res.redirect('http://localhost:5173/quizzes');
     }
 );
 
-router.get('/profile', ensureAuthenticated, (req, res) => {
+app.get('/profile', ensureAuthenticated, (req, res) => {
     // Access user profile information from the session
     const user = req.user;
     res.json({ user });
 });
 
-router.get('/logout', (req, res) => {
+app.get('/logout', (req, res) => {
     req.logout((err) => {
         if (err) {
             console.error('Error logging out:', err);
             // Handle errors appropriately, e.g., return a 500 status code
         } else {
             res.clearCookie('jwt');
-            res.redirect('https://testmindsai.tech/');
+            res.redirect('http://localhost:5173/');
         }
     });
 });
 
-module.exports = router;
+module.exports = app;

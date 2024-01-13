@@ -1,3 +1,4 @@
+//app.js
 require('dotenv').config();
 var createError = require('http-errors');
 var express = require('express');
@@ -5,13 +6,10 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var mongoose = require('./config/db');
-const cors = require('cors');
 const session = require('express-session');
-const passport = require('./config/passport-setup'); // Import the passport instance
 var app = express();
 
 var indexRouter = require('./routes/index');
-var authRoutes = require('./routes/auth-routes'); // Import the authentication routes
 
 mongoose
   .connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -30,7 +28,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
-  resave: false,
+  resave: true,
   saveUninitialized: true,
 }));
 
@@ -46,14 +44,6 @@ app.use((req, res, next) => {
     next();
   }
 });
-
-
-// Initialize Passport and restore authentication state if any, from the session
-app.use(passport.initialize());
-app.use(passport.session());
-
-// Use the authentication routes
-app.use('/auth', authRoutes);
 
 // Use your main routes
 app.use('/', indexRouter);
