@@ -1,7 +1,9 @@
 const express = require('express');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 require('dotenv').config();
+
 
 const router = express.Router();
 
@@ -10,8 +12,8 @@ const jwtSecret = process.env.JWT_SECRET;
 
 // Passport Setup
 passport.use(new GoogleStrategy({
-  clientID: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  clientID: process.env.CLIENT_ID,
+  clientSecret: process.env.CLIENT_SECRET,
   callbackURL: process.env.CALLBACK_URL
 }, (accessToken, refreshToken, profile, done) => {
     // Use the profile information to check if the user is already registered in your database
