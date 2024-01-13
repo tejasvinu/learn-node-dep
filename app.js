@@ -6,6 +6,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var mongoose = require('./config/db');
+
 const session = require('express-session');
 var app = express();
 
