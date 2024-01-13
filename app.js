@@ -6,10 +6,13 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var mongoose = require('./config/db');
 const cors = require('cors');
-
+const session = require('express-session');
+const passport = require('./config/passport-setup'); // Import the passport instance
 var app = express();
 
 var indexRouter = require('./routes/index');
+var authRoutes = require('./routes/auth-routes'); // Import the authentication routes
+
 mongoose
   .connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Connected to MongoDB'))
@@ -25,23 +28,35 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true,
+}));
+
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://testmindsai.tech');
+  res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
+
+
+// Initialize Passport and restore authentication state if any, from the session
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Use the authentication routes
+app.use('/auth', authRoutes);
+
+// Use your main routes
 app.use('/', indexRouter);
-
-app.use(cors());
-const corsOptions ={
-  origin:'http://localhost:3000', 
-  credentials:true,            //access-control-allow-credentials:true
-  optionSuccessStatus:200
-}
-app.use(cors(corsOptions));
-app.use(function (req, res, next) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  next();
-  });
-
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -58,6 +73,5 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
-
 
 module.exports = app;
