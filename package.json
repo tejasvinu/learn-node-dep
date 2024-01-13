@@ -25,6 +25,8 @@
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "pug": "^2.0.4",
-    "uglify-js": "^2.6.0"
+    "uglify-js": "^2.6.0",
+    "jsonwebtoken": "^9.0.2",
+    "passport-google-oauth20": "^2.0.0"
   }
 }
