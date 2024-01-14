@@ -1,13 +1,10 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const session = require('express-session');
-const cors = require('cors');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 // Express Middleware
 app.use(session({
@@ -15,20 +12,32 @@ app.use(session({
     resave: true,
     saveUninitialized: true,
 }));
-app.set("trust proxy", 1);
+
 app.use(passport.initialize());
 app.use(passport.session());
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', 'https://testmindsai.tech');
-    res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.header('Access-Control-Allow-Credentials', 'true');
+// app.use((req, res, next) => {
+//     res.header('Access-Control-Allow-Origin', 'https://testmindsai.tech');
+//     res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE');
+//     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+//     res.header('Access-Control-Allow-Credentials', 'true');
   
+//     if (req.method === 'OPTIONS') {
+//       res.sendStatus(200);
+//     } else {
+//       next();
+//     }
+// });
+app.use(function(req, res, next) {
+    res.header('Access-Control-Allow-Credentials', true);
+    res.header('Access-Control-Allow-Origin', 'https://testmindsai.tech');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,UPDATE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Authorization');
+    
     if (req.method === 'OPTIONS') {
-      res.sendStatus(200);
-    } else {
-      next();
-    }
+        res.sendStatus(200);
+      } else {
+        next();
+      }
   });
 // Replace with a strong, random secret for signing JWT tokens
 const jwtSecret = 'your-jwt-secret';
@@ -61,6 +70,7 @@ const ensureAuthenticated = (req, res, next) => {
     res.redirect('https://testmindsai.tech');
 };
 
+app.set("trust proxy", 1);
 // Generate JWT token
 const generateToken = (user) => {
     const payload = {
@@ -79,10 +89,6 @@ const generateToken = (user) => {
 app.get('/', (req, res) => {
     res.send('Hello World!');
 });
-
-app.get('/google',
-    passport.authenticate('google', { scope: ['profile', 'email'] })
-);
 
 const cookieParser = require('cookie-parser'); // Add this line
 
