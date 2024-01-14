@@ -85,14 +85,14 @@ app.get('/google',
 );
 
 app.get('/google/callback',
-    passport.authenticate('google', { failureRedirect: 'https://testmindsai.tech' }),
+    passport.authenticate('google', { failureRedirect: 'https://testmindsai.tech/' }),
     (req, res) => {
         console.log("success auth");
         // Successful authentication, generate JWT token and send it to the client
         const token = generateToken(req.user);
         console.log(token);
-        res.cookie('authToken', token, { sameSite: 'None', secure: true });
-        res.redirect('https://testmindsai.tech/Quizzes');
+        res.cookie('authToken', token, "https://testmindsai.tech/",{ sameSite: 'None', secure: true });
+        res.redirect('https://testmindsai.tech/quizzes');
     }
 );
 

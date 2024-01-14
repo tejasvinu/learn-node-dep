@@ -19,7 +19,7 @@ mongoose
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
-
+app.set ("trust proxy", 1);
 app.use(cors({
   origin: 'https://testmindsai.tech',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
