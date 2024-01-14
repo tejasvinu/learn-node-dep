@@ -18,8 +18,18 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(cors({ origin: 'https://testmindsai.tech', credentials: true }));
-app.use(cors({ origin: 'https://testmindsai.tech', credentials: true }));
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', 'https://testmindsai.tech');
+    res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.header('Access-Control-Allow-Credentials', 'true');
+  
+    if (req.method === 'OPTIONS') {
+      res.sendStatus(200);
+    } else {
+      next();
+    }
+  });
 // Replace with a strong, random secret for signing JWT tokens
 const jwtSecret = 'your-jwt-secret';
 
@@ -81,7 +91,7 @@ app.get('/google/callback',
         // Successful authentication, generate JWT token and send it to the client
         const token = generateToken(req.user);
         console.log(token)
-        res.cookie('authToken', token);
+        res.cookie('authToken', token, { sameSite: 'None', secure: true });
         res.redirect('https://testmindsai.tech/Quizzes');
     }
 );
