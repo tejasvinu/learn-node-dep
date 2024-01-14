@@ -87,10 +87,10 @@ app.get('/google',
 app.get('/google/callback',
     passport.authenticate('google', { failureRedirect: 'https://testmindsai.tech' }),
     (req, res) => {
-        console.log("success auth")
+        console.log("success auth");
         // Successful authentication, generate JWT token and send it to the client
         const token = generateToken(req.user);
-        console.log(token)
+        console.log(token);
         res.cookie('authToken', token, { sameSite: 'None', secure: true });
         res.redirect('https://testmindsai.tech/Quizzes');
     }
@@ -108,7 +108,7 @@ app.get('/logout', (req, res) => {
             console.error('Error logging out:', err);
             // Handle errors appropriately, e.g., return a 500 status code
         } else {
-            res.clearCookie('jwt');
+            res.clearCookie('authToken');  // Update the cookie name here
             res.redirect('https://testmindsai.tech/quizzes');
         }
     });
