@@ -80,7 +80,7 @@ app.get('/google/callback',
         // Successful authentication, generate JWT token and send it to the client
         const token = generateToken(req.user);
         res.cookie('authToken', token);
-        res.redirect('http://localhost:5173/Quizzes');
+        res.redirect('https://testmindsai.tech/Quizzes');
     }
 );
 
