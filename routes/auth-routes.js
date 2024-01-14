@@ -19,7 +19,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(cors({ origin: 'https://testmindsai.tech', credentials: true }));
-
+app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 // Replace with a strong, random secret for signing JWT tokens
 const jwtSecret = 'your-jwt-secret';
 
@@ -79,19 +79,8 @@ app.get('/google/callback',
     (req, res) => {
         // Successful authentication, generate JWT token and send it to the client
         const token = generateToken(req.user);
-
-        // Get the referring URL from the Referer header
-        const referer = req.get('Referer');
-
-        // Use the referring URL as the redirect target
-        if (referer) {
-            res.cookie('authToken', token);
-            res.redirect(referer);
-        } else {
-            // If Referer header is not present, redirect to a default URL
-            res.cookie('authToken', token);
-            res.redirect('https://testmindsai.tech/quizzes');
-        }
+        res.cookie('authToken', token);
+        res.redirect('http://localhost:5173/Quizzes');
     }
 );
 
@@ -108,7 +97,7 @@ app.get('/logout', (req, res) => {
             // Handle errors appropriately, e.g., return a 500 status code
         } else {
             res.clearCookie('jwt');
-            res.redirect('https://testmindsai.tech/');
+            res.redirect('https://testmindsai.tech/quizzes');
         }
     });
 });
