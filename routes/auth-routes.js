@@ -84,6 +84,10 @@ app.get('/google',
     passport.authenticate('google', { scope: ['profile', 'email'] })
 );
 
+const cookieParser = require('cookie-parser'); // Add this line
+
+app.use(cookieParser()); // Add this line
+
 app.get('/google/callback',
     passport.authenticate('google', { failureRedirect: 'https://testmindsai.tech/' }),
     (req, res) => {
@@ -91,8 +95,8 @@ app.get('/google/callback',
         // Successful authentication, generate JWT token and send it to the client
         const token = generateToken(req.user);
         console.log(token);
-        res.redirect('https://testmindsai.tech/');
         res.cookie('authToken', token, { sameSite: 'None', secure: true });
+        res.redirect('https://testmindsai.tech/');
     }
 );
 
