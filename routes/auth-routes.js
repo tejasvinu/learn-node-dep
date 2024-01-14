@@ -79,10 +79,22 @@ app.get('/google/callback',
     (req, res) => {
         // Successful authentication, generate JWT token and send it to the client
         const token = generateToken(req.user);
-        res.cookie('authToken', token);
-        res.redirect('https://testmindsai.tech/quizzes');
+
+        // Get the referring URL from the Referer header
+        const referer = req.get('Referer');
+
+        // Use the referring URL as the redirect target
+        if (referer) {
+            res.cookie('authToken', token);
+            res.redirect(referer);
+        } else {
+            // If Referer header is not present, redirect to a default URL
+            res.cookie('authToken', token);
+            res.redirect('https://testmindsai.tech/quizzes');
+        }
     }
 );
+
 
 app.get('/profile', ensureAuthenticated, (req, res) => {
     // Access user profile information from the session

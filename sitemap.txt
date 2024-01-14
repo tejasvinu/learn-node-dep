@@ -1,0 +1,7 @@
+https://testmindsai.tech/
+https://spa-github-pages.rafgraph.dev/?/example
+https://spa-github-pages.rafgraph.dev/?/example/two-deep&field1=foo~and~field2=bar#boom!
+https://spa-github-pages.rafgraph.dev/?/sitemap-link-generator
+https://testmindsai.tech/?/profile
+https://testmindsai.tech/?/quizzes
+https://testmindsai.tech/?/create
