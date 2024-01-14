@@ -70,7 +70,9 @@ const generateToken = (user) => {
     };
     const options = {
         expiresIn: '1h', // Set the expiration time as needed
-        path: '/quizzes'
+        path: '/',
+        sameSite: 'None',
+        secure: true,
     };
 
     return jwt.sign(payload, jwtSecret, options);
