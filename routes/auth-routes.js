@@ -15,7 +15,7 @@ app.use(session({
     resave: true,
     saveUninitialized: true,
 }));
-
+app.set("trust proxy", 1);
 app.use(passport.initialize());
 app.use(passport.session());
 app.use((req, res, next) => {
