@@ -95,7 +95,6 @@ app.get('/google/callback',
     }
 );
 
-
 app.get('/profile', ensureAuthenticated, (req, res) => {
     // Access user profile information from the session
     const user = req.user;
