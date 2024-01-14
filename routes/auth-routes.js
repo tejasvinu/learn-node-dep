@@ -94,6 +94,11 @@ const cookieParser = require('cookie-parser'); // Add this line
 
 app.use(cookieParser()); // Add this line
 
+
+app.get('/google',
+    passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
 app.get('/google/callback',
     passport.authenticate('google', { failureRedirect: 'https://testmindsai.tech/' }),
     (req, res) => {
