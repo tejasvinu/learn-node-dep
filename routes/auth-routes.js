@@ -70,6 +70,7 @@ const generateToken = (user) => {
     };
     const options = {
         expiresIn: '1h', // Set the expiration time as needed
+        path: '/quizzes'
     };
 
     return jwt.sign(payload, jwtSecret, options);
@@ -91,8 +92,8 @@ app.get('/google/callback',
         // Successful authentication, generate JWT token and send it to the client
         const token = generateToken(req.user);
         console.log(token);
-        res.cookie('authToken', token, "https://testmindsai.tech/",{ sameSite: 'None', secure: true });
         res.redirect('https://testmindsai.tech/quizzes');
+        res.cookie('authToken', token, { sameSite: 'None', secure: true ,path: '/quizzes'});
     }
 );
 
