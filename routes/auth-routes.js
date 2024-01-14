@@ -19,7 +19,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(cors({ origin: 'https://testmindsai.tech', credentials: true }));
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+app.use(cors({ origin: 'https://testmindsai.tech', credentials: true }));
 // Replace with a strong, random secret for signing JWT tokens
 const jwtSecret = 'your-jwt-secret';
 
@@ -48,7 +48,7 @@ const ensureAuthenticated = (req, res, next) => {
     if (req.isAuthenticated()) {
         return next();
     }
-    res.redirect('https://testmindsai.tech/');
+    res.redirect('https://testmindsai.tech');
 };
 
 // Generate JWT token
@@ -75,8 +75,9 @@ app.get('/google',
 );
 
 app.get('/google/callback',
-    passport.authenticate('google', { failureRedirect: 'https://testmindsai.tech/' }),
+    passport.authenticate('google', { failureRedirect: 'https://testmindsai.tech' }),
     (req, res) => {
+        console.log("success auth")
         // Successful authentication, generate JWT token and send it to the client
         const token = generateToken(req.user);
         res.cookie('authToken', token);

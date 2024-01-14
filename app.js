@@ -33,7 +33,6 @@ app.use(session({
   saveUninitialized: true,
 }));
 
-app.use(cors())
 // app.use((req, res, next) => {
 //   res.header('Access-Control-Allow-Origin', 'https://testmindsai.tech');
 //   res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE');
@@ -46,6 +45,18 @@ app.use(cors())
 //     next();
 //   }
 // });
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://testmindsai.tech');
+  res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
 
 // Use your main routes
 app.use('/', indexRouter);
