@@ -109,6 +109,7 @@ app.get('/google/callback',
 
         // Send the token as JSON response
         res.json({ token });
+        res.redirect('https://testmindsai.tech/quizzes');
     }
 );
 
