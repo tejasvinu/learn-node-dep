@@ -5,6 +5,7 @@ const session = require('express-session');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const app = express();
+const cors = require('cors');
 
 // Express Middleware
 app.use(session({
@@ -12,7 +13,7 @@ app.use(session({
     resave: true,
     saveUninitialized: true,
 }));
-
+app.use(cors({credentials: true, origin: 'https://testmindsai.tech'}));
 app.use(passport.initialize());
 app.use(passport.session());
 // app.use((req, res, next) => {
