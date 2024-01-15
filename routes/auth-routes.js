@@ -1,9 +1,11 @@
 const express = require('express');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const session = require('express-session');
 const jwt = require('jsonwebtoken');
-require('dotenv').config();
+const cookieParser = require('cookie-parser'); // Add this line
 
+require('dotenv').config();
 const app = express();
 
 // Express Middleware
@@ -46,7 +48,7 @@ app.use(function (req, res, next) {
 
 // Replace with a strong, random secret for signing JWT tokens
 const jwtSecret = 'your-jwt-secret';
-// Passport Setup
+
 passport.use(new GoogleStrategy({
     clientID: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
