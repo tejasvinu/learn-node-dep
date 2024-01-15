@@ -3,8 +3,6 @@ const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const session = require('express-session');
 const jwt = require('jsonwebtoken');
-const cookieParser = require('cookie-parser'); // Add this line
-const cors = require('cors');
 require('dotenv').config();
 const app = express();
 
@@ -17,48 +15,44 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(cors());
-app.use(cookieParser()); // Add this line
-
 // app.use((req, res, next) => {
 //     res.header('Access-Control-Allow-Origin', 'https://testmindsai.tech');
 //     res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE');
 //     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 //     res.header('Access-Control-Allow-Credentials', 'true');
-//     
+  
 //     if (req.method === 'OPTIONS') {
-//         res.sendStatus(200);
+//       res.sendStatus(200);
 //     } else {
-//         next();
+//       next();
 //     }
 // });
-
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
     res.header('Access-Control-Allow-Credentials', true);
     res.header('Access-Control-Allow-Origin', 'https://testmindsai.tech');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,UPDATE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Authorization,Set-Cookie');
-
+    res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Authorization');
+    
     if (req.method === 'OPTIONS') {
         res.sendStatus(200);
-    } else {
+      } else {
         next();
-    }
-});
-
+      }
+  });
 // Replace with a strong, random secret for signing JWT tokens
 const jwtSecret = 'your-jwt-secret';
 
+// Passport Setup
 passport.use(new GoogleStrategy({
     clientID: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
-    callbackURL: process.env.CALLBACK_URL
+    callbackURL: process.env.CALLBACK_URL 
 },
-    (accessToken, refreshToken, profile, done) => {
-        // Use the profile information to check if the user is already registered in your database
-        // If not, save the user's information to the database
-        return done(null, profile);
-    }));
+(accessToken, refreshToken, profile, done) => {
+    // Use the profile information to check if the user is already registered in your database
+    // If not, save the user's information to the database
+    return done(null, profile);
+}));
 
 passport.serializeUser((user, done) => {
     done(null, user);
@@ -76,6 +70,7 @@ const ensureAuthenticated = (req, res, next) => {
     res.redirect('https://testmindsai.tech');
 };
 
+app.set("trust proxy", 1);
 // Generate JWT token
 const generateToken = (user) => {
     const payload = {
@@ -87,13 +82,18 @@ const generateToken = (user) => {
         expiresIn: '1h', // Set the expiration time as needed
     };
 
-    return jwt.sign(payload, process.env.JWT_SECRET, options);
+    return jwt.sign(payload, jwtSecret, options);
 };
 
 // Routes
 app.get('/', (req, res) => {
     res.send('Hello World!');
 });
+
+const cookieParser = require('cookie-parser'); // Add this line
+
+app.use(cookieParser()); // Add this line
+
 
 app.get('/google',
     passport.authenticate('google', { scope: ['profile', 'email'] })
@@ -103,12 +103,11 @@ app.get('/google/callback',
     passport.authenticate('google', { failureRedirect: 'https://testmindsai.tech/' }),
     (req, res) => {
         console.log("success auth");
-        // Successful authentication, generate JWT token
+        // Successful authentication, generate JWT token and send it to the client
         const token = generateToken(req.user);
         console.log(token);
-
-        // Send the token as JSON response
-        res.json({ token });
+        res.cookie('authToken', token, { sameSite: 'None', secure: true });
+        res.redirect('https://testmindsai.tech/');
     }
 );
 
@@ -124,6 +123,7 @@ app.get('/logout', (req, res) => {
             console.error('Error logging out:', err);
             // Handle errors appropriately, e.g., return a 500 status code
         } else {
+            res.clearCookie('authToken');  // Update the cookie name here
             res.redirect('https://testmindsai.tech/quizzes');
         }
     });
