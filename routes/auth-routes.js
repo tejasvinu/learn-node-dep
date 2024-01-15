@@ -4,7 +4,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const session = require('express-session');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser'); // Add this line
-
+const cors = require('cors');
 require('dotenv').config();
 const app = express();
 
@@ -17,7 +17,7 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
-
+app.use(cors());
 app.use(cookieParser()); // Add this line
 
 // app.use((req, res, next) => {
