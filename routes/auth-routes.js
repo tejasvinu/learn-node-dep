@@ -1,11 +1,9 @@
 const express = require('express');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const session = require('express-session');
 const jwt = require('jsonwebtoken');
-const cookieParser = require('cookie-parser'); // Add this line
-
 require('dotenv').config();
+
 const app = express();
 
 // Express Middleware
@@ -48,7 +46,6 @@ app.use(function (req, res, next) {
 
 // Replace with a strong, random secret for signing JWT tokens
 const jwtSecret = 'your-jwt-secret';
-
 // Passport Setup
 passport.use(new GoogleStrategy({
     clientID: process.env.CLIENT_ID,
@@ -77,7 +74,6 @@ const ensureAuthenticated = (req, res, next) => {
     res.redirect('https://testmindsai.tech');
 };
 
-app.set("trust proxy", 1);
 // Generate JWT token
 const generateToken = (user) => {
     const payload = {
@@ -89,7 +85,7 @@ const generateToken = (user) => {
         expiresIn: '1h', // Set the expiration time as needed
     };
 
-    return jwt.sign(payload, jwtSecret, options);
+    return jwt.sign(payload, process.env.JWT_SECRET, options);
 };
 
 // Routes
@@ -105,15 +101,12 @@ app.get('/google/callback',
     passport.authenticate('google', { failureRedirect: 'https://testmindsai.tech/' }),
     (req, res) => {
         console.log("success auth");
-        // Successful authentication, generate JWT token and send it to the client
+        // Successful authentication, generate JWT token
         const token = generateToken(req.user);
         console.log(token);
 
-        // Set the Set-Cookie header
-        res.setHeader('Set-Cookie', `authToken=${token}; Path=/; SameSite=None; Secure`);
-
-        // Redirect to the desired location
-        res.redirect('https://testmindsai.tech/');
+        // Send the token as JSON response
+        res.json({ token });
     }
 );
 
@@ -129,7 +122,6 @@ app.get('/logout', (req, res) => {
             console.error('Error logging out:', err);
             // Handle errors appropriately, e.g., return a 500 status code
         } else {
-            res.clearCookie('authToken');  // Update the cookie name here
             res.redirect('https://testmindsai.tech/quizzes');
         }
     });
