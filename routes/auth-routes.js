@@ -3,24 +3,48 @@ const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const session = require('express-session');
 const jwt = require('jsonwebtoken');
-const cookieParser = require('cookie-parser');
-const cookie = require('cookie'); // Import the cookie package
-require('dotenv').config();
+const cookieParser = require('cookie-parser'); // Add this line
 
+require('dotenv').config();
 const app = express();
 
 // Express Middleware
 app.use(session({
-    secret: 'whateveryouwanttododotitidk',
+    secret: 'whateveryouwanttododotitidk', // Replace with a strong, random string
     resave: true,
     saveUninitialized: true,
 }));
 
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(cookieParser()); // Use cookie-parser middleware
 
-// ... (Other middleware)
+app.use(cookieParser()); // Add this line
+
+// app.use((req, res, next) => {
+//     res.header('Access-Control-Allow-Origin', 'https://testmindsai.tech');
+//     res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE');
+//     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+//     res.header('Access-Control-Allow-Credentials', 'true');
+//     
+//     if (req.method === 'OPTIONS') {
+//         res.sendStatus(200);
+//     } else {
+//         next();
+//     }
+// });
+
+app.use(function (req, res, next) {
+    res.header('Access-Control-Allow-Credentials', true);
+    res.header('Access-Control-Allow-Origin', 'https://testmindsai.tech');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,UPDATE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Authorization,Set-Cookie');
+
+    if (req.method === 'OPTIONS') {
+        res.sendStatus(200);
+    } else {
+        next();
+    }
+});
 
 // Replace with a strong, random secret for signing JWT tokens
 const jwtSecret = 'your-jwt-secret';
@@ -30,9 +54,12 @@ passport.use(new GoogleStrategy({
     clientID: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
     callbackURL: process.env.CALLBACK_URL
-}, (accessToken, refreshToken, profile, done) => {
-    return done(null, profile);
-}));
+},
+    (accessToken, refreshToken, profile, done) => {
+        // Use the profile information to check if the user is already registered in your database
+        // If not, save the user's information to the database
+        return done(null, profile);
+    }));
 
 passport.serializeUser((user, done) => {
     done(null, user);
@@ -51,15 +78,15 @@ const ensureAuthenticated = (req, res, next) => {
 };
 
 app.set("trust proxy", 1);
-
 // Generate JWT token
 const generateToken = (user) => {
     const payload = {
         id: user.id,
         email: user.emails[0].value,
+        // Add more user information as needed
     };
     const options = {
-        expiresIn: '1h',
+        expiresIn: '1h', // Set the expiration time as needed
     };
 
     return jwt.sign(payload, jwtSecret, options);
@@ -82,17 +109,16 @@ app.get('/google/callback',
         const token = generateToken(req.user);
         console.log(token);
 
-        // Use the cookie.serialize method from the cookie package
-        res.setHeader('Set-Cookie', cookie.serialize('authToken', token, {
-            path: '/',
-            httpOnly: true,
-        }));
+        // Set the Set-Cookie header
+        res.setHeader('Set-Cookie', `authToken=${token}; Path=/; SameSite=None; Secure`);
 
+        // Redirect to the desired location
         res.redirect('https://testmindsai.tech/');
     }
 );
 
 app.get('/profile', ensureAuthenticated, (req, res) => {
+    // Access user profile information from the session
     const user = req.user;
     res.json({ user });
 });
@@ -101,13 +127,9 @@ app.get('/logout', (req, res) => {
     req.logout((err) => {
         if (err) {
             console.error('Error logging out:', err);
+            // Handle errors appropriately, e.g., return a 500 status code
         } else {
-            // Clear the authToken cookie using cookie.serialize
-            res.setHeader('Set-Cookie', cookie.serialize('authToken', '', {
-                path: '/',
-                expires: new Date(0),
-                httpOnly: true,
-            }));
+            res.clearCookie('authToken');  // Update the cookie name here
             res.redirect('https://testmindsai.tech/quizzes');
         }
     });
