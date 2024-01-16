@@ -12,7 +12,12 @@ app.use(session({
     resave: true,
     saveUninitialized: true,
 }));
-app.use(cors({ credentials: true, origin: 'https://testmindsai.tech' }));
+app.use(cors({
+    credentials: true,
+    origin: 'https://testmindsai.tech',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    headers: 'Authorization, Content-Type',  // Add 'Authorization' to the allowed headers
+  }));
 app.use(passport.initialize());
 app.use(passport.session());
 
