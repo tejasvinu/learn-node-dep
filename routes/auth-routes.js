@@ -56,8 +56,7 @@ const generateToken = (user) => {
     };
     const options = {
         expiresIn: '1h', // Set the expiration time as needed
-        sameSite: 'None',
-        secure: true,
+        
     };
 
     return jwt.sign(payload, jwtSecret, options);
