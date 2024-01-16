@@ -20,7 +20,12 @@ mongoose
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 app.set ("trust proxy", 1);
-app.use(cors({credentials: true, origin: 'https://testmindsai.tech'}));
+app.use(cors({
+  credentials: true,
+  origin: 'https://testmindsai.tech',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+  headers: 'Authorization, Content-Type',  // Add 'Authorization' to the allowed headers
+}));
 
 app.use(logger('dev'));
 app.use(express.json());
