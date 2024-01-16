@@ -20,7 +20,18 @@ app.use(cors({
   }));
 app.use(passport.initialize());
 app.use(passport.session());
-
+app.use(function(req, res, next) {
+    res.header('Access-Control-Allow-Credentials', true);
+    res.header('Access-Control-Allow-Origin', 'https://testmindsai.tech');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,UPDATE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Authorization');
+    
+    if (req.method === 'OPTIONS') {
+        res.sendStatus(200);
+      } else {
+        next();
+      }
+  });
 const jwtSecret = process.env.JWT_SECRET;
 
 passport.use(new GoogleStrategy({
