@@ -20,26 +20,7 @@ mongoose
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 app.set ("trust proxy", 1);
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Credentials', true);
-  res.header('Access-Control-Allow-Origin', 'https://testmindsai.tech');
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,UPDATE,OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept, Authorization');
-  
-  if (req.method === 'OPTIONS') {
-      res.sendStatus(200);
-  } else {
-      next();
-  }
-});
-const corsOptions = {
-  origin: 'https://testmindsai.tech',
-  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-};
-
-app.use(cors(corsOptions));
+app.use(cors({credentials: true, origin: 'https://testmindsai.tech'}));
 
 app.use(logger('dev'));
 app.use(express.json());
