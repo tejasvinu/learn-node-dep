@@ -13,12 +13,13 @@ app.use(session({
     saveUninitialized: true,
 }));
 app.use(cors());
-app.use(cors({
-    credentials: true,
-    origin: 'https://testmindsai.tech',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    headers: 'Authorization, Content-Type',  // Add 'Authorization' to the allowed headers
-  }));
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', 'https://testmindsai.tech');
+    res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.header('Access-Control-Allow-Credentials', true);
+    next();
+  });
 app.use(passport.initialize());
 app.use(passport.session());
 const jwtSecret = process.env.JWT_SECRET;
