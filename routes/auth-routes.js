@@ -42,18 +42,17 @@ app.use(function(req, res, next) {
   });
 // Replace with a strong, random secret for signing JWT tokens
 const jwtSecret = 'your-jwt-secret';
-
 // Passport Setup
 passport.use(new GoogleStrategy({
     clientID: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
-    callbackURL: process.env.CALLBACK_URL 
+    callbackURL: process.env.CALLBACK_URL
 },
-(accessToken, refreshToken, profile, done) => {
-    // Use the profile information to check if the user is already registered in your database
-    // If not, save the user's information to the database
-    return done(null, profile);
-}));
+    (accessToken, refreshToken, profile, done) => {
+        // Use the profile information to check if the user is already registered in your database
+        // If not, save the user's information to the database
+        return done(null, profile);
+    }));
 
 passport.serializeUser((user, done) => {
     done(null, user);
@@ -71,7 +70,6 @@ const ensureAuthenticated = (req, res, next) => {
     res.redirect('https://testmindsai.tech');
 };
 
-app.set("trust proxy", 1);
 // Generate JWT token
 const generateToken = (user) => {
     const payload = {
@@ -83,18 +81,13 @@ const generateToken = (user) => {
         expiresIn: '1h', // Set the expiration time as needed
     };
 
-    return jwt.sign(payload, jwtSecret, options);
+    return jwt.sign(payload, process.env.JWT_SECRET, options);
 };
 
 // Routes
 app.get('/', (req, res) => {
     res.send('Hello World!');
 });
-
-const cookieParser = require('cookie-parser'); // Add this line
-
-app.use(cookieParser()); // Add this line
-
 
 app.get('/google',
     passport.authenticate('google', { scope: ['profile', 'email'] })
@@ -104,11 +97,12 @@ app.get('/google/callback',
     passport.authenticate('google', { failureRedirect: 'https://testmindsai.tech/' }),
     (req, res) => {
         console.log("success auth");
-        // Successful authentication, generate JWT token and send it to the client
+        // Successful authentication, generate JWT token
         const token = generateToken(req.user);
         console.log(token);
-        res.cookie('authToken', token, { sameSite: 'None', secure: true });
-        res.redirect('https://testmindsai.tech/');
+
+        // Send the token as JSON response
+        res.json({ token });
     }
 );
 
@@ -124,7 +118,6 @@ app.get('/logout', (req, res) => {
             console.error('Error logging out:', err);
             // Handle errors appropriately, e.g., return a 500 status code
         } else {
-            res.clearCookie('authToken');  // Update the cookie name here
             res.redirect('https://testmindsai.tech/quizzes');
         }
     });
