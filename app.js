@@ -24,6 +24,7 @@ app.use(cors({
   origin: 'https://testmindsai.tech',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
+  headers: 'Authorization, Content-Type',
 }));
 
 app.use(logger('dev'));
