@@ -58,10 +58,10 @@ const generateToken = (user) => {
 };
 
 // Initiate Google authentication from the server
-app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+app.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 // Handle the Google callback after successful authentication
-app.get('/auth/google/callback',
+app.get('/google/callback',
     passport.authenticate('google', { failureRedirect: 'https://testmindsai.tech/' }),
     (req, res) => {
         console.log("success auth");
